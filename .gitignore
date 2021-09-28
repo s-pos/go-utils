@@ -1,0 +1,6 @@
+.idea
+*.xml
+*.json
+*.out
+.env
+main.go
