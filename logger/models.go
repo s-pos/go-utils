@@ -25,6 +25,7 @@ const (
 	_Messages        Flags = "Messages"
 	_ThirdParties    Flags = "ThirdParties"
 	_ErrorMessage    Flags = "ErrorMessage"
+	_ErrorLocation   Flags = "ErrorLocation"
 	_ResponseMessage Flags = "ResponseMessage"
 	_MandatoryField  Flags = "MandatoryFields"
 )
@@ -43,6 +44,7 @@ type DataLogger struct {
 	Response        interface{}            `json:"response_body"`
 	ResponseMessage string                 `json:"response_message"`
 	ErrorMessage    string                 `json:"error_message"`
+	ErrorLocation   string                 `json:"error_location"`
 	ExecTime        float64                `json:"exec_time"`
 	Messages        []string               `json:"log_messages"`
 	ThirdParties    []ThirdParty           `json:"outgoing_log"`
