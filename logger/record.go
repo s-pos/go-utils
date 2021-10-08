@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -77,6 +78,7 @@ func Response(ctx context.Context, status int, res interface{}, errLocation inte
 	value.Set(_Response, res)
 
 	if err != nil {
+		log.Println(errLocation)
 		value.Set(_ErrorMessage, err.Error())
 		value.Set(_ErrorLocation, errLocation.(string))
 	}
