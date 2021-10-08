@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -16,8 +15,11 @@ func Wrapper(route *echo.Echo) error {
 	// cors condition
 	origins := strings.Split(os.Getenv("CORS_ORIGIN"), ",")
 	headers := strings.Split(os.Getenv("CORS_HEADERS"), ",")
-	log.Println(origins, headers)
-	route.Use(middleware.CORSWithConfig(middleware.DefaultCORSConfig))
+	route.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: origins,
+		AllowHeaders: headers,
+		AllowMethods: []string{"*"},
+	}))
 
 	route.HideBanner = true
 

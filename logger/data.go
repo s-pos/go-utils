@@ -36,6 +36,10 @@ func (d *DataLogger) Finalize(ctx context.Context) {
 		d.ErrorMessage = i.(string)
 	}
 
+	if i, ok := value.LoadAndDelete(_ErrorLocation); ok && i != nil {
+		d.ErrorLocation = i.(string)
+	}
+
 	d.ExecTime = time.Since(d.TimeStart).Seconds()
 }
 

@@ -67,7 +67,7 @@ func dumpBody(req *http.Request) map[string]interface{} {
 }
 
 // Response is record response
-func Response(ctx context.Context, status int, res interface{}, err error) {
+func Response(ctx context.Context, status int, res interface{}, errLocation interface{}, err error) {
 	value, ok := extract(ctx)
 	if !ok {
 		return
@@ -78,6 +78,7 @@ func Response(ctx context.Context, status int, res interface{}, err error) {
 
 	if err != nil {
 		value.Set(_ErrorMessage, err.Error())
+		value.Set(_ErrorLocation, errLocation.(string))
 	}
 }
 

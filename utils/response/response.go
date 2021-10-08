@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"runtime"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -71,6 +72,11 @@ func (r *response) Write(c echo.Context) error {
 
 // return error response with json
 func Errors(ctx context.Context, responseStatusCode int, statusCode, statusMessage, statusReason string, err error) Output {
+	var errLocation string
+	if fname, _, line, ok := runtime.Caller(1); ok {
+		errLocation = fmt.Sprintf("[%s:%d]", runtime.FuncForPC(fname).Name(), line)
+	}
+
 	res := response{}
 	res.StatusCode = responseStatusCode
 	res.Status.Error = true
@@ -79,7 +85,7 @@ func Errors(ctx context.Context, responseStatusCode int, statusCode, statusMessa
 	res.Status.Reason = statusReason
 	res.MandatoryFields = logger.GetMandatoryFields(ctx)
 
-	logger.Response(ctx, responseStatusCode, res, err)
+	logger.Response(ctx, responseStatusCode, res, errLocation, err)
 	logger.ResponseMessage(ctx, statusMessage)
 
 	return &res
@@ -87,6 +93,11 @@ func Errors(ctx context.Context, responseStatusCode int, statusCode, statusMessa
 
 // return error response with json
 func ErrorsWithData(ctx context.Context, responseStatusCode int, statusCode, statusMessage, statusReason string, data interface{}, err error) Output {
+	var errLocation string
+	if fname, _, line, ok := runtime.Caller(1); ok {
+		errLocation = fmt.Sprintf("[%s:%d]", runtime.FuncForPC(fname).Name(), line)
+	}
+
 	res := response{}
 	res.StatusCode = responseStatusCode
 	res.Status.Error = true
@@ -95,7 +106,7 @@ func ErrorsWithData(ctx context.Context, responseStatusCode int, statusCode, sta
 	res.Status.Reason = statusReason
 	res.MandatoryFields = logger.GetMandatoryFields(ctx)
 
-	logger.Response(ctx, responseStatusCode, res, err)
+	logger.Response(ctx, responseStatusCode, res, errLocation, err)
 	logger.ResponseMessage(ctx, statusMessage)
 
 	res.Data = data
@@ -112,7 +123,7 @@ func Success(ctx context.Context, responseStatusCode int, statusCode, statusMess
 	res.Status.Message = statusMessage
 
 	// send to logger before set data to response
-	logger.Response(ctx, responseStatusCode, res, nil)
+	logger.Response(ctx, responseStatusCode, res, nil, nil)
 	logger.ResponseMessage(ctx, statusMessage)
 
 	res.Data = data
@@ -129,7 +140,7 @@ func SuccessWithCache(ctx context.Context, responseStatusCode int, statusCode, s
 	res.Status.Message = statusMessage
 
 	// send to logger before set data to response
-	logger.Response(ctx, responseStatusCode, res, nil)
+	logger.Response(ctx, responseStatusCode, res, nil, nil)
 	logger.ResponseMessage(ctx, statusMessage)
 
 	res.Data = data
@@ -149,7 +160,7 @@ func SuccessWithCacheSpesific(ctx context.Context, responseStatusCode int, statu
 	res.Status.Message = statusMessage
 
 	// send to logger before set data to response
-	logger.Response(ctx, responseStatusCode, res, nil)
+	logger.Response(ctx, responseStatusCode, res, nil, nil)
 	logger.ResponseMessage(ctx, statusMessage)
 
 	res.Data = data
@@ -171,7 +182,7 @@ func SuccessWithReason(ctx context.Context, responseStatusCode int, statusCode, 
 	res.Status.Reason = statusReason
 
 	// send to logger before set data to response
-	logger.Response(ctx, responseStatusCode, res, nil)
+	logger.Response(ctx, responseStatusCode, res, nil, nil)
 	logger.ResponseMessage(ctx, statusMessage)
 
 	res.Data = data
