@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
 	"github.com/s-pos/go-utils/logger"
@@ -30,20 +29,11 @@ func (c *client) write(dl *logger.DataLogger) {
 		level            logrus.Level
 		elasticStatus, _ = strconv.ParseBool(os.Getenv("ELASTIC_ENABLED"))
 		errChan          = make(chan error, 1)
-		wg               sync.WaitGroup
 	)
 	if elasticStatus {
-		elastic := logger.NewElastic()
-		wg.Add(1)
 		go func() {
-			defer wg.Done()
+			elastic := logger.NewElastic()
 			elastic.SendDataToElastic(dl, errChan)
-
-			select {
-			case err := <-errChan:
-				c.log.Errorf("error send data to elastic %v", err)
-			default:
-			}
 		}()
 	}
 
@@ -57,8 +47,12 @@ func (c *client) write(dl *logger.DataLogger) {
 
 	monitoring.Prometheus().Record(dl.StatusCode, dl.RequestMethod, dl.Endpoint, dl.ResponseMessage, time.Since(dl.TimeStart))
 	if elasticStatus {
-		wg.Wait()
-		close(errChan)
+		select {
+		case err := <-errChan:
+			c.log.Errorf("error send data to elastic %v", err)
+		default:
+			close(errChan)
+		}
 	}
 	c.log.WithField("incoming_log", dl).Log(level, "apps")
 }
