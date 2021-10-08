@@ -73,8 +73,8 @@ func (r *response) Write(c echo.Context) error {
 // return error response with json
 func Errors(ctx context.Context, responseStatusCode int, statusCode, statusMessage, statusReason string, err error) Output {
 	var errLocation string
-	if fname, file, line, ok := runtime.Caller(1); ok {
-		errLocation = fmt.Sprintf("[%s:%s:%d]", file, runtime.FuncForPC(fname).Name(), line)
+	if fname, _, line, ok := runtime.Caller(1); ok {
+		errLocation = fmt.Sprintf("[%s:%d]", runtime.FuncForPC(fname).Name(), line)
 	}
 
 	res := response{}
@@ -94,8 +94,8 @@ func Errors(ctx context.Context, responseStatusCode int, statusCode, statusMessa
 // return error response with json
 func ErrorsWithData(ctx context.Context, responseStatusCode int, statusCode, statusMessage, statusReason string, data interface{}, err error) Output {
 	var errLocation string
-	if fname, file, line, ok := runtime.Caller(1); ok {
-		errLocation = fmt.Sprintf("[%s:%s:%d]", file, runtime.FuncForPC(fname).Name(), line)
+	if fname, _, line, ok := runtime.Caller(1); ok {
+		errLocation = fmt.Sprintf("[%s:%d]", runtime.FuncForPC(fname).Name(), line)
 	}
 
 	res := response{}
