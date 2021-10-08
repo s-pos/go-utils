@@ -1,14 +1,23 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/s-pos/go-utils/logger"
 	"github.com/s-pos/go-utils/utils/monitoring"
 	"github.com/sirupsen/logrus"
+)
+
+var (
+	colorReset   = "\033[0m"
+	colorDanger  = "\033[31m"
+	colorSuccess = "\033[32m"
+	colorWarning = "\033[33m"
 )
 
 // Logger using for record any request, response and some logmessages to stdout terminal
@@ -37,22 +46,27 @@ func (c *client) write(dl *logger.DataLogger) {
 		}()
 	}
 
-	if dl.StatusCode >= 200 && dl.StatusCode < 400 {
-		level = logrus.InfoLevel
-	} else if dl.StatusCode >= 400 && dl.StatusCode < 500 {
-		level = logrus.WarnLevel
-	} else {
-		level = logrus.ErrorLevel
-	}
-
 	monitoring.Prometheus().Record(dl.StatusCode, dl.RequestMethod, dl.Endpoint, dl.ResponseMessage, time.Since(dl.TimeStart))
 	if elasticStatus {
 		select {
 		case err := <-errChan:
+			fmt.Print(string(colorDanger))
 			c.log.Errorf("error send data to elastic %v", err)
+			fmt.Print(string(colorReset))
 		default:
 			close(errChan)
 		}
+	}
+
+	if dl.StatusCode >= 200 && dl.StatusCode < 400 {
+		fmt.Println(string(colorSuccess), strings.Repeat("=", 60))
+		level = logrus.InfoLevel
+	} else if dl.StatusCode >= 400 && dl.StatusCode < 500 {
+		fmt.Println(string(colorWarning), strings.Repeat("=", 60))
+		level = logrus.WarnLevel
+	} else {
+		fmt.Println(string(colorDanger), strings.Repeat("=", 60))
+		level = logrus.ErrorLevel
 	}
 	c.log.WithField("incoming_log", dl).Log(level, "apps")
 }
