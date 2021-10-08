@@ -59,13 +59,13 @@ func (c *client) write(dl *logger.DataLogger) {
 	}
 
 	if dl.StatusCode >= 200 && dl.StatusCode < 400 {
-		fmt.Println(string(colorSuccess), strings.Repeat("=", 20))
+		fmt.Println(string(colorSuccess), strings.Repeat("=", 60))
 		level = logrus.InfoLevel
 	} else if dl.StatusCode >= 400 && dl.StatusCode < 500 {
-		fmt.Println(string(colorWarning), strings.Repeat("=", 20))
+		fmt.Println(string(colorWarning), strings.Repeat("=", 60))
 		level = logrus.WarnLevel
 	} else {
-		fmt.Println(string(colorDanger), strings.Repeat("=", 20))
+		fmt.Println(string(colorDanger), strings.Repeat("=", 60))
 		level = logrus.ErrorLevel
 	}
 	c.log.WithField("incoming_log", dl).Log(level, "apps")
